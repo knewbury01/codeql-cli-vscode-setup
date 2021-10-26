@@ -1,0 +1,117 @@
+* CodeQL command-line tool setup
+  Choose one of the cli/library bundles:  https://github.com/github/codeql-action/releases
+  
+  #+BEGIN_SRC sh
+    cd ~/local/
+
+    # Choose and get a bundle
+    wget https://github.com/github/codeql-action/releases/download/codeql-bundle-20211005/codeql-bundle-osx64.tar.gz
+    tar zxf codeql-bundle-osx64.tar.gz
+
+    # Note the version, and rename
+    ./codeql/codeql --version
+    mv codeql codeql263
+  #+END_SRC
+
+* Create database
+  #+BEGIN_SRC sh
+    # grab a sample repository
+    mkdir ~/t0 && cd ~/t0
+    git clone https://github.com/hohn/codeql-external-data
+
+    # Set PATH
+    export PATH=$HOME/local/codeql263:"$PATH"
+
+    # Build db via codeql database create
+    cd  ~/t0/codeql-external-data/
+    codeql database create -l cpp -s . -j 8 -v simple.db --command='./build.sh'
+
+    # Make sure the source is in it
+    unzip -v simple.db/src.zip | grep simple
+    : should be similar to
+    : 92  Defl:N ... .../t0/codeql-external-data/simple.c
+
+  #+END_SRC
+
+* Run a query on the database
+  #+BEGIN_SRC sh
+    cat > FindMain.ql <<EOF
+    /**
+     ,* @kind problem
+     ,* @id sample/find-main
+    ,*/
+
+    import cpp
+
+    from Function f
+    where f.getName() = "main"
+    select f, "the main function"
+    EOF
+  #+END_SRC
+
+  #+BEGIN_SRC sh
+    codeql database analyze                         \
+           -v                                       \
+           --rerun                                  \
+           --format=sarif-latest                    \
+           --output cpp-main.sarif                  \
+           --                                       \
+           simple.db                                \
+           FindMain.ql
+  #+END_SRC
+
+* Run a query suite on the database
+  Available query suites include
+  #+BEGIN_SRC sh
+    $CODEQL_SUPPORT_LANGUAGE-code-scanning.qls
+    $CODEQL_SUPPORT_LANGUAGE-security-extended.qls
+    $CODEQL_SUPPORT_LANGUAGE-security-and-quality.qls
+  #+END_SRC
+
+  As example:
+  #+BEGIN_SRC sh
+    codeql database analyze                         \
+           -v                                       \
+           --rerun                                  \
+           --format=sarif-latest                    \
+           --output cpp-simple.sarif                \
+           --                                       \
+           simple.db                                \
+           cpp-code-scanning.qls
+  #+END_SRC
+
+  Note the metrics:
+  | Metric                                                 | Value |
+  |--------------------------------------------------------+-------|
+  | Total lines of C/C++ code in the database              |  6441 |
+  | Total lines of user written C/C++ code in the database |     4 |
+
+* VS Code setup
+
+  #+BEGIN_SRC sh
+    cd ~/t0/codeql-external-data/
+    open -a /Applications/Visual\ Studio\ Code.app .
+  #+END_SRC
+
+  In vs code
+  - Set up the workspace
+    : view > command palette > save workspace as > simple.code-workspace
+
+  - Add ql library directory to workspace
+    : explorer pane > workspace > add folder to workspace > ~/local/codeql263/qlpacks/
+
+  - Add database to workspace
+    : QL tab > add database from folder
+
+  - Use the just-installed cli (adjust for your setup)
+    : open settings > codeql cli executable path > /Users/hohn/local/codeql263/codeql
+
+  - Run a query
+    - open =FindMain.ql=
+    - Right click > run query
+
+* References
+  - codeql cli guides: https://github.com/advanced-security/advanced-security-material/blob/main/code-scanning-guides/setup-codeql-cli.md
+  - external data: https://github.com/hohn/codeql-external-data
+  - sandwich tracing: https://github.com/advanced-security/advanced-security-material/blob/main/code-scanning-guides/sandwich-tracing.md
+  
