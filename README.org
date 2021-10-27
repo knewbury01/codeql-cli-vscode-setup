@@ -8,9 +8,11 @@
   across a group/organization.  For query developers, it means using those
   versions with the VS Code plugin.
 
-  This document is a sample walkthrough of such a setup, specifically, it
+  This document is a sample walkthrough of such a setup; specifically, it
   illustrates using a codeql bundle to set up both the cli and VS Code.  All the
-  steps use unix shell commands, familiarity with the sh-family is assumed.
+  steps use unix shell commands, familiarity with the sh-family is assumed.  The
+  directory paths chosen here are short and (very likely) unique, so you should be
+  able to copy and paste most of the snippets without change.
 
   There are two other approaches to installing and using the codeql
   command-line tools and associated libraries.  The steps are similar to this
@@ -52,8 +54,11 @@
   #+END_SRC
 
 * Create database
-  Now we can build the ql database using the =build.sh= script.  Note that
-  =build.sh= uses clang, so you may have to adjust this to actually work.
+  Now we can build the ql database.  This requires some source code, we just clone a
+  simple C demo repository here and use the tools just installed.
+
+  Note that =build.sh= uses =clang=, so you may have to adjust this to actually
+  work.
   #+BEGIN_SRC sh
     # grab a sample repository
     mkdir ~/t0 && cd ~/t0
@@ -154,8 +159,8 @@
     your system
     : explorer pane > workspace > add folder to workspace >  /Users/hohn/qld1/codeql263/codeql/qlpacks
 
-  - Add database to workspace
-    : QL tab > add database from folder
+  - Add the database to workspace
+    : QL tab > add database from folder > ~/t0/codeql-external-data/simple.db
     or
     : explorer tab > codeql-external-data > simple.db > right click > codeql: set current database
 
