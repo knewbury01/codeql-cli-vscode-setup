@@ -93,15 +93,24 @@ EOF
 cd  ~/Desktop/demo-cli/
 cat > FindMain.ql <<EOF
 /**
-    ,* @kind problem
-    ,* @id sample/find-main
-,*/
+* @kind problem
+* @id sample/find-main
+*/
 
 import java
 
 from Method m
 where m.getName() = "main"
 select m, "the main function"
+EOF
+```
+and create a [query pack file](https://codeql.github.com/docs/codeql-cli/about-ql-packs/#about-qlpack-yml-files):
+```
+cd  ~/Desktop/demo-cli/
+cat > qlpack.yml <<EOF
+name: java-query-test
+version: 0.0.1
+libraryPathDependencies: codeql-java
 EOF
 ```
 
