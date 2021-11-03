@@ -40,7 +40,7 @@
 mkdir -p ~/Desktop/demo-cli/codeql270
 cd ~/Desktop/demo-cli/codeql270
 
-# Get the bundle
+# Get the bundle (for your os - note the following url is for OSX)
 wget https://github.com/github/codeql-action/releases/download/codeql-bundle-20211025/codeql-bundle-osx64.tar.gz
 # On mac, also do this:
 /usr/bin/xattr -c codeql*.tar.gz
@@ -62,7 +62,8 @@ tar zxf codeql-bundle-osx64.tar.gz
 ## Make a sample Python app
 ```
 cd  ~/Desktop/demo-cli/
-cat > hello.py <<EOF
+mkdir pysrc
+cat > pysrc/hello.py <<EOF
 
 def foo():
     print("Hello World!")
@@ -73,7 +74,7 @@ EOF
 `export PATH=~/Desktop/demo-cli/codeql270/codeql:"$PATH"`
 
 ## Build db via codeql database create
-`codeql database create -l python -s . -j 8 -v simple.db`
+`codeql database create -l python -s pysrc -j 8 -v simple.db`
 
 ## Make sure the source is in it
 `unzip -v simple.db/src.zip | grep hello`
@@ -180,7 +181,7 @@ codeql database analyze                          \
     : open settings > codeql cli executable > workspace > `~/Desktop/demo-cli/codeql270/codeql/codeql`
 
   - Run a query
-    - open `FindMain.ql`
+    - open `FindFoo.ql`
     - Right click > codeql: run query
 
 * References
